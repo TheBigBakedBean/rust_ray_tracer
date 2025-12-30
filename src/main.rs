@@ -1,6 +1,9 @@
 use std::fs::File;
 use std::io::prelude::*;
 
+mod vec3;
+mod colour;
+
 // Image resolution configuration
 const IMAGE_WIDTH: i32 = 256;
 const IMAGE_HEIGHT: i32 = 256;
@@ -19,16 +22,13 @@ fn main() -> std::io::Result<()>{
         for x in 0..IMAGE_WIDTH{
 
             // Normalization of pixel coordinates and assignment to colour channels
-            let r = f64::from(x) / f64::from(IMAGE_WIDTH - 1);
-            let g = f64::from(y) / f64::from(IMAGE_HEIGHT - 1);
-            let b = 0.0;
+            let pixel_colour = colour::Colour::new(
+                f64::from(x) / f64::from(IMAGE_WIDTH - 1),
+                f64::from(y) / f64::from(IMAGE_HEIGHT - 1),
+                0.0
+            );
 
-            // Convert floating point color values to integer for ppm format (lossy and truncates towards zero)
-            let ir = (255.999 * r) as i32;
-            let ig = (255.999 * g) as i32;
-            let ib = (255.999 * b) as i32;
-
-            file.write(format!("{} {} {}", ir, ig, ib).as_bytes())?;
+            colour::write_color(&mut file, &pixel_colour)?;
         }
     }
 
