@@ -18,9 +18,9 @@ const VIEWPORT_HEIGHT: f64 = 2.0;
 const CAMERA_CENTER: vec3::Point3 = vec3::Point3::new(0.0, 0.0, 0.0);
 
 fn ray_color(ray: &ray::Ray) -> colour::Colour{
-    let normalized_direction = ray.dir.normalize();
+    let normalized_direction = ray.dir.normalized();
     let a = 0.5*(normalized_direction.y + 1.0);
-    colour::Colour::new(1.0, 1.0, 1.0)*(1.0 - a) + (colour::Colour::new(0.5, 0.7, 1.0) * a)
+    colour::Colour::new(1.0, 1.0, 1.0) * (1.0 - a) + (colour::Colour::new(0.5, 0.7, 1.0) * a)
 }
 
 fn main() -> std::io::Result<()>{
@@ -29,7 +29,7 @@ fn main() -> std::io::Result<()>{
     let image_height = (f64::from(IMAGE_WIDTH) / ASPECT_RATIO) as i32;
     let image_height = if image_height < 1 {1} else {image_height};
 
-    let viewport_width = VIEWPORT_HEIGHT * f64::from(IMAGE_WIDTH / image_height);
+    let viewport_width = VIEWPORT_HEIGHT * ASPECT_RATIO;
 
     // Horizontal and Vertical vectors along the edges of the viewport that intersect at the origin
     let viewport_horizontal_vector = vec3::Vec3::new(viewport_width, 0.0, 0.0);

@@ -1,4 +1,4 @@
-// 3D Vector type, used for vectors, points and colours.
+//! 3D Vector type, used for vectors, points and colours.
 // This file implements basic operations and arithmetic
 
 use std::ops::{AddAssign, MulAssign, DivAssign, SubAssign, Add, Sub, Mul, Div, Neg};
@@ -6,7 +6,7 @@ use std::fmt;
 
 #[derive(Clone, Copy, Default, Debug)]
 pub struct Vec3{
-    pub x: f64,  // f64 is used for higher precision leading to higher quality renders
+    pub x: f64,
     pub y: f64,
     pub z: f64,
 }
@@ -21,18 +21,9 @@ impl Vec3{
         self.length_squared().sqrt()
     }
 
-    pub fn dot(&self, b: &Vec3) -> f64{
-        self.x * b.x + self.y * b.y + self.z * b.z
-    }
-    pub fn cross(&self, b: &Vec3) -> Vec3{
-        Vec3 {
-            x: self.y * b.z - self.z * b.y,
-            y: self.z * b.x - self.x * b.z,
-            z: self.x * b.y - self.y * b.x,
-        }
-    }
-    pub fn normalize(&self)->Vec3{
-        *self / self.length()
+    /// Will panic if a zero vector is passed in, it is the users responsibility to ensure this
+    pub fn normalized(&self)->Vec3{
+        self / self.length()
     }
 }
 
@@ -42,7 +33,8 @@ impl fmt::Display for Vec3{
     }
 }
 
-impl Neg for Vec3{
+// References are used in operations to avoid cloning input values
+impl Neg for &Vec3{
     type Output = Vec3;
     fn neg(self)->Self::Output{
         Vec3{
@@ -52,9 +44,9 @@ impl Neg for Vec3{
         }
     }
 }
-impl Add<Vec3> for Vec3{
+impl Add<&Vec3> for &Vec3{
     type Output = Vec3;
-    fn add(self, rhs: Vec3)->Self::Output{
+    fn add(self, rhs: &Vec3)->Self::Output{
         Vec3{
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -62,9 +54,9 @@ impl Add<Vec3> for Vec3{
         }    
     }
 }
-impl Sub<Vec3> for Vec3{
+impl Sub<&Vec3> for &Vec3{
     type Output = Vec3;
-    fn sub(self, rhs: Vec3)->Self::Output{
+    fn sub(self, rhs: &Vec3)->Self::Output{
         Vec3{
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -72,7 +64,7 @@ impl Sub<Vec3> for Vec3{
         }    
     }
 }
-impl Mul<f64> for Vec3{
+impl Mul<f64> for &Vec3{
     type Output = Vec3;
     fn mul(self, rhs: f64)->Self::Output{
         Vec3{
@@ -82,7 +74,7 @@ impl Mul<f64> for Vec3{
         }    
     }
 }
-impl Div<f64> for Vec3{
+impl Div<f64> for &Vec3{
     type Output = Vec3;
     fn div(self, rhs: f64)->Self::Output{
         Vec3{
@@ -92,18 +84,60 @@ impl Div<f64> for Vec3{
         }    
     }
 }
-impl AddAssign<Vec3> for Vec3{
-    fn add_assign(&mut self, rhs: Vec3) {
+impl AddAssign<&Vec3> for Vec3{
+    fn add_assign(&mut self, rhs: &Vec3) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
     }
 }
-impl SubAssign<Vec3> for Vec3{
-    fn sub_assign(&mut self, rhs: Vec3) {
+impl SubAssign<&Vec3> for Vec3{
+    fn sub_assign(&mut self, rhs: &Vec3) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
+    }
+}
+
+// Sometimes you also want versions without references
+impl Neg for Vec3{
+    type Output = Vec3;
+    fn neg(self)->Self::Output{
+        -&self
+    }
+}
+impl Add<Vec3> for Vec3{
+    type Output = Vec3;
+    fn add(self, rhs: Vec3)->Self::Output{
+        &self+&rhs
+    }
+}
+impl Sub<Vec3> for Vec3{
+    type Output = Vec3;
+    fn sub(self, rhs: Vec3)->Self::Output{
+        &self-&rhs
+    }
+}
+impl Mul<f64> for Vec3{
+    type Output = Vec3;
+    fn mul(self, rhs: f64)->Self::Output{
+        &self*rhs
+    }
+}
+impl Div<f64> for Vec3{
+    type Output = Vec3;
+    fn div(self, rhs: f64)->Self::Output{
+        &self/rhs
+    }
+}
+impl AddAssign<Vec3> for Vec3{
+    fn add_assign(&mut self, rhs: Vec3) {
+        *self+=&rhs
+    }
+}
+impl SubAssign<Vec3> for Vec3{
+    fn sub_assign(&mut self, rhs: Vec3) {
+        *self-=&rhs
     }
 }
 impl MulAssign<f64> for Vec3{
@@ -118,6 +152,32 @@ impl DivAssign<f64> for Vec3{
         self.x /= rhs;
         self.y /= rhs;
         self.z /= rhs;
+    }
+}
+
+// Varients of Mul with f64 as LHS
+impl Mul<&Vec3> for f64{
+    type Output = Vec3;
+    fn mul(self, rhs: &Vec3)->Self::Output{
+        rhs*self
+    }
+}
+impl Mul<Vec3> for f64{
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3)->Self::Output{
+        rhs*self
+    }
+}
+
+// More complex operations
+pub fn dot(a: &Vec3, b: &Vec3) -> f64{
+    a.x * b.x + a.y * b.y + a.z * b.z
+}
+pub fn cross(a: &Vec3, b: &Vec3) -> Vec3{
+    Vec3 {
+        x: a.y * b.z - a.z * b.y,
+        y: a.z * b.x - a.x * b.z,
+        z: a.x * b.y - a.y * b.x,
     }
 }
 
