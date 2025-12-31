@@ -3,5 +3,20 @@
 version = 4
 
 [[package]]
-name = "rust_ray_tracer"
+name = "lib_rustrt"
+version = "0.1.0"
+dependencies = [
+ "vec3math",
+]
+
+[[package]]
+name = "rustrt_bin"
+version = "0.1.0"
+dependencies = [
+ "lib_rustrt",
+ "vec3math",
+]
+
+[[package]]
+name = "vec3math"
 version = "0.1.0"

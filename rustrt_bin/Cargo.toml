@@ -1,0 +1,8 @@
+[package]
+name = "rustrt_bin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+lib_rustrt = {path="../lib_rustrt"}
+vec3math = {path="../vec3math"}
