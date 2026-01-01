@@ -1,5 +1,6 @@
 use crate::hitable::{Hittable, HitRecord};
 use crate::ray::Ray;
+use crate::interval::Interval;
 
 use std::rc::Rc;
 use std::option::Option;
@@ -22,12 +23,12 @@ impl HittableList{
     }
 
     /// Returns the closest hit to the camera. If there is no hit, returns `None`
-    pub fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord>{
+    pub fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>{
         let mut hit_rec: Option<HitRecord> = None;
-        let mut closest_so_far = ray_tmax;
+        let mut closest_so_far = ray_t.max;
 
         for object in &self.objects{
-            match object.hit(ray, ray_tmin, closest_so_far){
+            match object.hit(ray, Interval::new(ray_t.min, closest_so_far)){
                 Some(e) => {
                     hit_rec = Some(e);
                     closest_so_far = e.t;

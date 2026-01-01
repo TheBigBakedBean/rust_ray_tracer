@@ -2,6 +2,7 @@ use std::option::Option;
 
 use vec3math::{Vec3, Point3, dot};
 use crate::ray::Ray;
+use crate::interval::Interval;
 
 #[derive(Clone, Copy)]
 pub struct HitRecord{
@@ -26,5 +27,5 @@ pub trait Hittable: std::fmt::Debug{
     /// - Should return `Some(HitRecord)` if a collision has occured
     /// - Should return `None` if the ray doesn't collide with the implementor
     /// - If there are 2 intersections, the t value in the `HitRecord` must be the lower value
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
 }

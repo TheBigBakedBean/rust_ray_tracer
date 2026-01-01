@@ -1,6 +1,8 @@
 use vec3math::{Point3, dot};
 use lib_rustrt::hitable::{Hittable, HitRecord};
 use lib_rustrt::ray::Ray;
+use lib_rustrt::interval::Interval;
+
 use std::option::Option;
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -19,7 +21,7 @@ impl Sphere{
 }
 
 impl Hittable for Sphere{
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord> {
         let offset = self.center - ray.orig;
 
         // Determine input variables for quadratic function
@@ -36,9 +38,9 @@ impl Hittable for Sphere{
         let sqrtd = discriminant.sqrt();
 
         let root = (h - sqrtd) / a;
-        if root <= ray_tmin || root >= ray_tmax {
+        if !ray_t.surrounds(root) {
             let root = (h + sqrtd) / a;
-            if root <= ray_tmin || root >= ray_tmax {
+            if !ray_t.surrounds(root) {
                 return None;
             }
         }

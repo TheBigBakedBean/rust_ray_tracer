@@ -4,6 +4,7 @@ pub mod colour;
 pub mod hitable_list;
 pub mod hitable;
 pub mod ray;
+pub mod interval;
 
 // Constants
 

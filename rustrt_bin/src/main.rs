@@ -12,6 +12,7 @@ use lib_rustrt::colour::{
 };
 use lib_rustrt::ray::Ray;
 use lib_rustrt::hitable_list::HittableList;
+use lib_rustrt::interval::Interval;
 use crate::sphere::Sphere;
 
 mod sphere;
@@ -31,16 +32,20 @@ const VIEWPORT_HEIGHT: f64 = 2.0;
 const CAMERA_CENTER: Point3 = Point3::new(0.0, 0.0, 0.0);
 
 fn ray_color(ray: &Ray, world: &HittableList) -> Colour{
-    match world.hit(ray, 0.1, lib_rustrt::INFINITY){
+    match world.hit(ray, Interval::new(0.0, lib_rustrt::INFINITY)) {
         Some(e) => {
+
+            // Return a colour based on the surface normals
             return 0.5 * (e.normal + Colour::new(1.0, 1.0, 1.0))
         },
-        None => {},
-    }
+        None => {
 
-    let unit_direction = ray.dir.normalized();
-    let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a) * Colour::new(1.0, 1.0, 1.0) + a * Colour::new(0.5, 0.7, 1.0)
+            // Generate a blue gradient for the background when the ray doesn't hit anything
+            let unit_direction = ray.dir.normalized();
+            let a = 0.5 * (unit_direction.y + 1.0);
+            return (1.0 - a) * Colour::new(1.0, 1.0, 1.0) + a * Colour::new(0.5, 0.7, 1.0)
+        },
+    }
 }
 
 fn main() -> std::io::Result<()>{
