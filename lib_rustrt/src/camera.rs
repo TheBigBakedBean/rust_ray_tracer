@@ -2,8 +2,8 @@ use crate::ray::Ray;
 use crate::hitable_list::HittableList;
 use crate::interval::Interval;
 use crate::colour::{Colour, write_color};
-use crate::random_unit_f64;
-use vec3math::{Point3, Vec3};
+use crate::random_f64;
+use vec3math::{Point3, Vec3, dot};
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -17,6 +17,7 @@ pub struct Camera{
     pub image_width: i32,
     pub aspect_ratio: f64,
     pub samples_per_pixel: i32,
+    pub max_depth: i32,
 
     image_height: i32,
     center: Point3,
@@ -27,13 +28,14 @@ pub struct Camera{
 }
 
 impl Camera{
-    pub fn new(image_width: i32, aspect_ratio: f64, samples_per_pixel: i32) -> Self{
+    pub fn new(image_width: i32, aspect_ratio: f64, samples_per_pixel: i32, max_depth: i32) -> Self{
 
         // Initialize a base camera with default parameters so we can call initialize()
         let mut temp = Camera{
             image_width,
             aspect_ratio,
             samples_per_pixel,
+            max_depth,
             ..Default::default()
         };
 
@@ -93,7 +95,7 @@ impl Camera{
 
                 for _sample in 0..self.samples_per_pixel{
                     let ray = self.get_ray(fx, fy);
-                    pixel_colour += Self::ray_colour(&ray, world);
+                    pixel_colour += Self::ray_colour(&ray, world, self.max_depth);
                 }
 
                 let average_pixel_colour = pixel_colour * self.pixel_samples_scale;
@@ -119,12 +121,15 @@ impl Camera{
         Ray::new(self.center, pixel_sample - self.center)
     }
 
-    fn ray_colour(ray: &Ray, world: &HittableList) -> Colour{
+    fn ray_colour(ray: &Ray, world: &HittableList, depth: i32) -> Colour{
+        if depth <= 0 {
+            return Colour::new(0.0, 0.0, 0.0)
+        }
+
         match world.hit(ray, Interval::new(0.0, crate::INFINITY)){
             Some(e) => {
-                
-                // Return a colour based on the surface normals
-                0.5 * (e.normal + Colour::new(1.0, 1.0, 1.0))
+                let direction = Self::random_on_hemisphere(&e.normal);
+                0.5 * Self::ray_colour(&Ray::new(e.point, direction), world, depth - 1)
             },
             None => {
                 
@@ -139,6 +144,25 @@ impl Camera{
     fn sample_square() -> Vec3 {
         // Returns the vector to a random point in the [-0.5, -0.5] - [+0.5, +0.5] unit square
 
-        return Vec3::new(random_unit_f64() - 0.5, random_unit_f64() - 0.5, 0.0);
+        return Vec3::new(random_f64() - 0.5, random_f64() - 0.5, 0.0);
+    }
+
+    fn random_unit_vector() -> Vec3{
+        loop{
+            let p = crate::random_vec3_range(-1.0, 1.0);
+            let lensq = p.length_squared();
+            if 1e-160 < lensq && lensq <= 1.0{
+                return p / lensq.sqrt()
+            }
+        }
+    }
+
+    fn random_on_hemisphere(normal: &Vec3) -> Vec3{
+        let on_unit_sphere = Self::random_unit_vector();
+        if dot(&on_unit_sphere, normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
     }
 }
