@@ -30,8 +30,8 @@ impl HittableList{
         for object in &self.objects{
             match object.hit(ray, Interval::new(ray_t.min, closest_so_far)){
                 Some(e) => {
-                    hit_rec = Some(e);
                     closest_so_far = e.t;
+                    hit_rec = Some(e);
                 },
                 None => {},
             }

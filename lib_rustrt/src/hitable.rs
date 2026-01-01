@@ -1,24 +1,26 @@
 use std::option::Option;
+use std::rc::Rc;
 
 use vec3math::{Vec3, Point3, dot};
 use crate::ray::Ray;
 use crate::interval::Interval;
+use crate::material::Scatterable;
 
-#[derive(Clone, Copy)]
 pub struct HitRecord{
     pub point: Point3,
     pub normal: Vec3,
+    pub mat: Rc<dyn Scatterable>,
     pub t: f64,
     pub front_face: bool,
 }
 impl HitRecord{
-    pub fn new(point: Point3, outward_normal: Vec3, t: f64, ray: &Ray, ) -> Self {
+    pub fn new(point: Point3, outward_normal: Vec3, mat: Rc<dyn Scatterable>, t: f64, ray: &Ray) -> Self {
 
         // Determine if the normal is pointing inward or outward
         let front_face = dot(&ray.dir, &outward_normal) < 0.0;
         let normal = if front_face {outward_normal} else {-outward_normal};
 
-        Self{point, normal, t, front_face}
+        Self{point, normal, mat, t, front_face}
     }
 }
 

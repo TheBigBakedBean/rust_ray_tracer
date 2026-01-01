@@ -49,3 +49,11 @@ pub fn linear_to_gamma(linear_component: f64)-> f64 {
         0.0
     }
 }
+
+pub fn mul(a: &Colour, b: &Colour) -> Colour{
+    Colour::new(
+        a.x * b.x,
+        a.y * b.y,
+        a.z * a.z,
+    )
+}

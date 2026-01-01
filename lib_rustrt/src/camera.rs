@@ -128,9 +128,15 @@ impl Camera{
         }
 
         match world.hit(ray, Interval::new(0.001, crate::INFINITY)){
-            Some(e) => {
-                let direction = e.normal + Self::random_unit_vector();
-                gamut * Self::ray_colour(&Ray::new(e.point, direction), world, depth - 1, gamut)
+            Some(hit) => {
+                match hit.mat.scatter(ray, &hit){
+                    Some((ray, colour)) => {
+                        crate::colour::mul(&colour, &Self::ray_colour(&ray, world, depth-1, gamut))
+                    },
+                    None => {
+                        Colour::new(0.0, 0.0, 0.0)
+                    }
+                }
             },
             None => {
                 

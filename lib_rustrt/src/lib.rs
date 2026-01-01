@@ -1,4 +1,5 @@
 use rand::random_range;
+use vec3math::{Vec3, dot};
 
 // Submodules
 
@@ -8,6 +9,7 @@ pub mod hitable;
 pub mod ray;
 pub mod interval;
 pub mod camera;
+pub mod material;
 
 // Constants
 
@@ -36,4 +38,23 @@ pub fn random_vec3()->vec3math::Vec3{
 
 pub fn random_vec3_range(min: f64, max: f64)->vec3math::Vec3{
     vec3math::Vec3::new(random_f64_range(min, max), random_f64_range(min, max), random_f64_range(min, max))
+}
+
+fn random_unit_vector() -> Vec3{
+    loop{
+        let p = crate::random_vec3_range(-1.0, 1.0);
+        let lensq = p.length_squared();
+        if 1e-160 < lensq && lensq <= 1.0{
+            return p / lensq.sqrt()
+        }
+    }
+}
+
+fn random_on_hemisphere(normal: &Vec3) -> Vec3{
+    let on_unit_sphere = random_unit_vector();
+    if dot(&on_unit_sphere, normal) > 0.0 {
+        on_unit_sphere
+    } else {
+        -on_unit_sphere
+    }
 }

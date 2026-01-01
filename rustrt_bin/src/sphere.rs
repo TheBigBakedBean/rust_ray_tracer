@@ -2,20 +2,27 @@ use vec3math::{Point3, dot};
 use lib_rustrt::hitable::{Hittable, HitRecord};
 use lib_rustrt::ray::Ray;
 use lib_rustrt::interval::Interval;
+use lib_rustrt::material::Scatterable;
 
 use std::option::Option;
+use std::rc::Rc;
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Sphere{
     center: Point3,
     radius: f64,
+    mat: Rc<dyn Scatterable>,
 }
 
 impl Sphere{
-    pub fn new(center: Point3, radius: f64) -> Self{
+    pub fn new(center: Point3, radius: f64, mat: Rc<dyn Scatterable>) -> Self{
+        // TODO:
+        // Initialise the material pointer `mat`.
+
         Self {
             center: center,
-            radius: f64::max(0.0, radius)
+            radius: f64::max(0.0, radius),
+            mat
         }
     }
 }
@@ -50,6 +57,7 @@ impl Hittable for Sphere{
         Some(HitRecord::new(
             ray_at_root,
             (ray_at_root - self.center) / self.radius,
+            self.mat.clone(),
             root,
             ray,
         ))
