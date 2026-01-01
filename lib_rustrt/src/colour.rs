@@ -14,10 +14,15 @@ pub fn write_color(file: &mut File, colour: &Colour) -> std::io::Result<()> {
     let g = f64::clamp(colour.y, MIN_FLOAT_PIXEL_VALUE, MAX_FLOAT_PIXEL_VALUE);
     let b = f64::clamp(colour.z, MIN_FLOAT_PIXEL_VALUE, MAX_FLOAT_PIXEL_VALUE);
 
+    // Apply a linear to gamma transform to the colour values
+    let gr = linear_to_gamma(r);
+    let gg = linear_to_gamma(g);
+    let gb = linear_to_gamma(b);
+
     // Convert floating point color values to integer for ppm format (lossy and truncates towards zero)
-    let ir = (255.999 * r) as i32;
-    let ig = (255.999 * g) as i32;
-    let ib = (255.999 * b) as i32;
+    let ir = (255.999 * gr) as i32;
+    let ig = (255.999 * gg) as i32;
+    let ib = (255.999 * gb) as i32;
 
     // Inserts a debug comment to ppm file if clamping occurs
     #[cfg(debug_assertions)]
@@ -35,4 +40,12 @@ pub fn write_color(file: &mut File, colour: &Colour) -> std::io::Result<()> {
     writeln!(file, "{} {} {}", ir, ig, ib)?;
 
     Ok(())
+}
+
+pub fn linear_to_gamma(linear_component: f64)-> f64 {
+    if linear_component > 0.0 {
+        linear_component.sqrt()
+    } else {
+        0.0
+    }
 }
