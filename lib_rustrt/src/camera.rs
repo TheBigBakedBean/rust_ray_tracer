@@ -2,6 +2,7 @@ use crate::ray::Ray;
 use crate::hitable_list::HittableList;
 use crate::interval::Interval;
 use crate::colour::{Colour, write_color};
+use crate::random_unit_f64;
 use vec3math::{Point3, Vec3};
 
 use std::fs::File;
@@ -15,20 +16,24 @@ const DEFAULT_VIEWPORT_HEIGHT: f64 = 2.0;
 pub struct Camera{
     pub image_width: i32,
     pub aspect_ratio: f64,
+    pub samples_per_pixel: i32,
+
     image_height: i32,
     center: Point3,
     pixel00_loc: Point3,
     pixel_delta_horizontal: Vec3,
     pixel_delta_vertical: Vec3,
+    pixel_samples_scale: f64,
 }
 
 impl Camera{
-    pub fn new(image_width: i32, aspect_ratio: f64) -> Self{
+    pub fn new(image_width: i32, aspect_ratio: f64, samples_per_pixel: i32) -> Self{
 
         // Initialize a base camera with default parameters so we can call initialize()
         let mut temp = Camera{
             image_width,
             aspect_ratio,
+            samples_per_pixel,
             ..Default::default()
         };
 
@@ -42,6 +47,8 @@ impl Camera{
         // Calculate image height, ensuring it's at least 1
         self.image_height = (f64::from(self.image_width) / self.aspect_ratio) as i32;
         self.image_height = i32::max(self.image_height, 1);
+
+        self.pixel_samples_scale = 1.0 / f64::from(self.samples_per_pixel);
 
         self.center = Point3::new(0.0, 0.0, 0.0);
 
@@ -82,18 +89,34 @@ impl Camera{
             for x in 0..self.image_width{
                 let fx = f64::from(x);
 
-                let pixel_center = self.pixel00_loc + (self.pixel_delta_horizontal * fx) + (self.pixel_delta_vertical * fy);
-                let ray_direction = pixel_center - self.center;
-                let ray = Ray::new(self.center, ray_direction);
+                let mut pixel_colour = Colour::new(0.0, 0.0, 0.0);
 
-                let pixel_colour = Self::ray_colour(&ray, &world);
-                write_color(file, &pixel_colour)?;
+                for _sample in 0..self.samples_per_pixel{
+                    let ray = self.get_ray(fx, fy);
+                    pixel_colour += Self::ray_colour(&ray, world);
+                }
+
+                let average_pixel_colour = pixel_colour * self.pixel_samples_scale;
+
+                write_color(file, &average_pixel_colour)?;
             }
         }
 
         println!("\rDone.                                     ");
 
         Ok(())
+    }
+
+    // Uses floating point inputs to avoid casting multiple times
+    fn get_ray(&self, fx: f64, fy: f64) -> Ray{
+        // Construct a camera ray originating from the origin and directed at randomly sample points around the pixel coordinate given
+
+        let offset = Self::sample_square();
+        let pixel_sample = self.pixel00_loc
+            + (fx + offset.x) * self.pixel_delta_horizontal
+            + (fy + offset.y) * self.pixel_delta_vertical;
+
+        Ray::new(self.center, pixel_sample - self.center)
     }
 
     fn ray_colour(ray: &Ray, world: &HittableList) -> Colour{
@@ -111,5 +134,11 @@ impl Camera{
                 (1.0 - a) * Colour::new(1.0, 1.0, 1.0) + a * Colour::new(0.5, 0.7, 1.0)
             }
         }
+    }
+
+    fn sample_square() -> Vec3 {
+        // Returns the vector to a random point in the [-0.5, -0.5] - [+0.5, +0.5] unit square
+
+        return Vec3::new(random_unit_f64() - 0.5, random_unit_f64() - 0.5, 0.0);
     }
 }

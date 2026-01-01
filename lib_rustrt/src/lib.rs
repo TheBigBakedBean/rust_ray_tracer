@@ -1,3 +1,5 @@
+use rand::random_range;
+
 // Submodules
 
 pub mod colour;
@@ -16,4 +18,14 @@ pub const PI: f64 = 3.1415926535897932385;
 
 pub const fn degrees_to_radians(degrees: f64) -> f64{
     degrees * PI / 180.0
+}
+
+/// Returns a random `f64` between `0.0` (inclusive) and `1.0` (exclusive)
+pub fn random_unit_f64()->f64{
+    random_range(0.0..1.0)
+}
+
+/// Returns a random `f64` between `min` (inclusive) and `max` (exclusive)
+pub fn random_f64(min: f64, max: f64)->f64{
+    random_range(min..max)
 }

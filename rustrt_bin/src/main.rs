@@ -9,7 +9,7 @@ use crate::sphere::Sphere;
 
 mod sphere;
 
-const FILE_PATH: &str = "renders/ch06_sphere_normals.ppm";
+const FILE_PATH: &str = "samples/ch08_anti_aliased.ppm";
 
 fn main() -> std::io::Result<()>{
     let mut world = HittableList::default();
@@ -24,7 +24,7 @@ fn main() -> std::io::Result<()>{
 
     let mut file = File::create(FILE_PATH)?;
 
-    let cam = Camera::new(400, 16.0 / 9.0);
+    let cam = Camera::new(400, 16.0 / 9.0, 100);
 
     cam.render(&world, &mut file)?;
 

@@ -5,11 +5,14 @@ use vec3math::Vec3;
 
 pub type Colour = Vec3;
 
+const MIN_FLOAT_PIXEL_VALUE: f64 = 0.0;
+const MAX_FLOAT_PIXEL_VALUE: f64 = 1.0;
+
 // Borrow file and colour to avoid cloning the values
 pub fn write_color(file: &mut File, colour: &Colour) -> std::io::Result<()> {
-    let r = f64::clamp(colour.x, 0.0, 1.0);
-    let g = f64::clamp(colour.y, 0.0, 1.0);
-    let b = f64::clamp(colour.z, 0.0, 1.0);
+    let r = f64::clamp(colour.x, MIN_FLOAT_PIXEL_VALUE, MAX_FLOAT_PIXEL_VALUE);
+    let g = f64::clamp(colour.y, MIN_FLOAT_PIXEL_VALUE, MAX_FLOAT_PIXEL_VALUE);
+    let b = f64::clamp(colour.z, MIN_FLOAT_PIXEL_VALUE, MAX_FLOAT_PIXEL_VALUE);
 
     // Convert floating point color values to integer for ppm format (lossy and truncates towards zero)
     let ir = (255.999 * r) as i32;
