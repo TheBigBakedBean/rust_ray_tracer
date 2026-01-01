@@ -12,13 +12,13 @@ use crate::sphere::Sphere;
 
 mod sphere;
 
-const FILE_PATH: &str = "renders/ch10_multimaterial_spheres.ppm";
+const FILE_PATH: &str = "renders/ch10_multimaterial_spheres_with_fuzz.ppm";
 
 fn main() -> std::io::Result<()>{
     let material_ground = Rc::new(Lambertian::new(Colour::new(0.3, 0.8, 0.3)));
     let material_center = Rc::new(Lambertian::new(Colour::new(0.8, 0.1, 0.1)));
-    let material_left = Rc::new(Metal::new(Colour::new(0.8, 0.8, 0.8)));
-    let material_right = Rc::new(Metal::new(Colour::new(0.8, 0.6, 0.2)));
+    let material_left = Rc::new(Metal::new(Colour::new(0.8, 0.8, 0.8), 0.0));
+    let material_right = Rc::new(Metal::new(Colour::new(0.8, 0.6, 0.2), 0.0));
 
     let mut world = HittableList::default();
     world.add(Rc::new(Sphere::new(
