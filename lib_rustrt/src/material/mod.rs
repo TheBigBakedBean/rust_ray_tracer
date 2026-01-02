@@ -7,6 +7,7 @@ use std::fmt::Debug;
 
 pub mod lambertian;
 pub mod metal;
+pub mod dielectric;
 
 pub trait Scatterable: Debug{
     fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<(Ray, Colour)>;

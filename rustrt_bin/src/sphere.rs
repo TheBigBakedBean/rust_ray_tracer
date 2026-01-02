@@ -44,9 +44,9 @@ impl Hittable for Sphere{
         // Square rooting discriminant here avoids doing it twice if there are 2 roots
         let sqrtd = discriminant.sqrt();
 
-        let root = (h - sqrtd) / a;
+        let mut root = (h - sqrtd) / a;
         if !ray_t.surrounds(root) {
-            let root = (h + sqrtd) / a;
+            root = (h + sqrtd) / a;
             if !ray_t.surrounds(root) {
                 return None;
             }

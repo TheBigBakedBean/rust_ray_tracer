@@ -4,6 +4,8 @@
 use std::ops::{AddAssign, MulAssign, DivAssign, SubAssign, Add, Sub, Mul, Div, Neg};
 use std::fmt;
 
+pub mod graphics;
+
 #[derive(Clone, Copy, Default, Debug)]
 pub struct Vec3{
     pub x: f64,
@@ -184,9 +186,6 @@ pub fn cross(a: &Vec3, b: &Vec3) -> Vec3{
         y: a.z * b.x - a.x * b.z,
         z: a.x * b.y - a.y * b.x,
     }
-}
-pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3{
-    *v - 2.0 * dot(v, n) * n
 }
 
 pub type Point3 = Vec3;

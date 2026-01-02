@@ -4,7 +4,7 @@ use crate::material::Scatterable;
 use crate::ray::Ray;
 use crate::hitable::HitRecord;
 
-use vec3math::reflect;
+use vec3math::graphics::reflect;
 
 use std::option::Option;
 
